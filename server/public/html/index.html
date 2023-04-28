@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Test</title>
+  </head>
+
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      background-image: url("https://images.unsplash.com/photo-1581610186406-5f6e9f9edbc1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80");
+      /* background-color: grey; */
+      margin: 1px auto;
+      padding: 20px;
+    }
+
+    .not_visible {
+      display: none;
+    }
+
+    .login_signup_text {
+      text-transform: uppercase;
+      font-size: 30px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .login_signup_container {
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+      background-color: white;
+      border: 0.5px #4170f4 solid;
+      max-width: 400px;
+      margin: 40px auto;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .input {
+      border: 1px grey solid;
+      box-sizing: border-box;
+      width: 100%;
+      padding: 7px;
+      border-radius: 5px;
+      font-size: 20px;
+    }
+
+    .warning_text {
+      margin-top: 10px;
+      color: red;
+    }
+
+    .btn {
+      border: none;
+      margin-top: 20px;
+      background-color: #4170f4;
+      color: white;
+      border-radius: 7px;
+      width: 100%;
+      font-size: 20px;
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+
+    .bottom_text {
+      font-size: 15px;
+    }
+    .login_signup_container p {
+      max-width: 100%;
+      word-wrap: break-word;
+    }
+    .login_signup_container span {
+      color: blue;
+      cursor: pointer;
+    }
+  </style>
+
+  <body>
+    <div class="login_signup_container not_visible">
+      <p class="login_signup_text">Login</p>
+
+      <input
+        type="text"
+        class="input input_name not_visible"
+        id="input_name"
+        name="input_name"
+        placeholder="Name"
+      />
+
+      <input
+        type="text"
+        class="input input_email"
+        id="input_email"
+        name="input_email"
+        placeholder="Email"
+      />
+
+      <input
+        type="password"
+        class="input input_password"
+        id="input_password"
+        name="input_password"
+        placeholder="Password"
+      />
+
+      <input
+        type="password"
+        class="input input_confirm_password not_visible"
+        id="input_confirm_password"
+        name="input_confirm_password"
+        placeholder="Confirm Password"
+      />
+
+      <p class="warning_text"></p>
+      <button data-src="login" class="btn btn_login_signup" type="button">
+        Login
+      </button>
+      <p class="bottom_text">Don't have an account</p>
+      <span>Sign up</span>
+    </div>
+  </body>
+
+  <script>
+    let xyx;
+    const loginSignupBtn = document.querySelector(".btn_login_signup");
+    const inputName = document.querySelector(".input_name");
+    const emailInput = document.querySelector(".input_email");
+    const passwordInput = document.querySelector(".input_password");
+    const inputConfirmPassword = document.querySelector(
+      ".input_confirm_password"
+    );
+    const warningText = document.querySelector(".warning_text");
+
+    const loginSignupText = document.querySelector(".login_signup_text");
+    const bottomText = document.querySelector(".bottom_text");
+    const SignLoginSwitcher = document.querySelector(
+      ".login_signup_container span"
+    );
+
+    let isLoggedIn = false;
+
+    SignLoginSwitcher.addEventListener("click", function () {
+      inputName.classList.toggle("not_visible");
+      inputConfirmPassword.classList.toggle("not_visible");
+
+      if (loginSignupBtn.dataset.src == "signup") {
+        warningText.textContent = "";
+        bottomText.innerHTML = "Don't have an account";
+        loginSignupBtn.dataset.src = "login";
+        SignLoginSwitcher.textContent = "Sign up";
+        loginSignupText.textContent = "Login";
+        loginSignupBtn.textContent = "Login";
+      } else {
+        warningText.textContent = "";
+        bottomText.innerHTML = "Already have an account";
+        loginSignupBtn.dataset.src = "signup";
+        SignLoginSwitcher.textContent = "Login";
+        loginSignupText.textContent = "Registration";
+        loginSignupBtn.textContent = "Sign up";
+      }
+    });
+
+    const loginObject = {
+      email: null,
+      password: null,
+    };
+
+    const signupObject = {
+      name: null,
+      email: null,
+      password: null,
+    };
+
+    const loginSignup = loginSignupBtn.addEventListener(
+      "click",
+      async function () {
+        if (loginSignupBtn.dataset.src == "login") {
+          loginObject.email = emailInput.value;
+          loginObject.password = passwordInput.value;
+
+          try {
+            warningText.textContent = "Loading...";
+            const response = await fetch("api/users/login", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(loginObject),
+              Cache: "default",
+            });
+            if (!response.ok) {
+              warningText.style.color = "red";
+              const data = await response.json();
+              warningText.textContent = data.message;
+              console.log(data);
+            } else {
+              const data = await response.json();
+              warningText.style.color = "green";
+              location.replace("http://localhost:3006")
+              warningText.textContent =
+                "Logged in successfully \n Jwt token : " + data.token;
+              isLoggedIn = true;
+            }
+          } catch {
+            warningText.textContent = "Unable to process this request";
+          }
+        } else {
+          if (passwordInput.value != inputConfirmPassword.value) {
+            warningText.textContent = "Confirm password is not matching";
+            return;
+          }
+          signupObject.name = inputName.value;
+          signupObject.email = emailInput.value;
+          signupObject.password = passwordInput.value;
+
+          try {
+            warningText.textContent = "Loading...";
+            const response = await fetch("api/users/signup", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(signupObject),
+              Cache: "default",
+            });
+            if (!response.ok) {
+              warningText.style.color = "red";
+              const data = await response.json();
+              warningText.textContent = data.message.message;
+              if (data.message.code == 11000) {
+                warningText.textContent =
+                  "Crating multiple accounts using the same email is not allowed";
+              }
+              console.log(data);
+            } else {
+              const data = await response.json();
+              warningText.style.color = "green";
+              warningText.textContent =
+                "Account created successfully, You can now login";
+            }
+          } catch {
+            warningText.textContent = "Unable to process this request";
+          }
+        }
+      }
+    );
+  </script>
+</html>
